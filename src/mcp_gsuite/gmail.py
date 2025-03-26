@@ -9,6 +9,7 @@ from typing import Tuple
 
 class GmailService():
     def __init__(self, user_id: str):
+        # FIXME
         credentials = gauth.get_stored_credentials(user_id=user_id)
         if not credentials:
             raise RuntimeError("No Oauth2 credentials stored")

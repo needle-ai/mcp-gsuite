@@ -6,16 +6,27 @@ from mcp.types import (
     EmbeddedResource,
 )
 
-from . import gauth
-
 USER_ID_ARG = "__user_id__"
+
+# FIXME
+def get_account_info() -> dict:
+    return {
+        "accounts": [
+        {
+            "email": "alice@bob.com",
+            "account_type": "personal",
+            "extra_info": "Additional info that you want to tell Claude: E.g. 'Contains Family Calendar'"
+        }
+    ]
+}
+
 
 class ToolHandler():
     def __init__(self, tool_name: str):
         self.name = tool_name
 
     def get_account_descriptions(self) -> list[str]:
-        return [a.to_description() for a in gauth.get_account_info()]
+        return [a.to_description() for a in get_account_info()]
     
     # we ingest this information into every tool that requires a specified __user_id__. 
     # we also add what information actually can be used (account info). This way Claude
