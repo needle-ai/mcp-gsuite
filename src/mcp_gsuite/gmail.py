@@ -1,3 +1,4 @@
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build 
 import logging
 import base64
@@ -7,9 +8,9 @@ from typing import Tuple
 
 
 class GmailService():
-    def __init__(self, user_id: str, credentials: dict):
+    def __init__(self, user_id: str, credentials: Credentials):
         if not credentials:
-            raise RuntimeError("No Oauth2 credentials stored")
+            raise RuntimeError("No Oauth2 credentials provided")
         self.service = build('gmail', 'v1', credentials=credentials)
 
     def _parse_message(self, txt, parse_body=False) -> dict | None:
