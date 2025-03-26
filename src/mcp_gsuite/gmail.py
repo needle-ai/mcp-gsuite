@@ -1,5 +1,4 @@
 from googleapiclient.discovery import build 
-from . import gauth
 import logging
 import base64
 import traceback
@@ -8,9 +7,7 @@ from typing import Tuple
 
 
 class GmailService():
-    def __init__(self, user_id: str):
-        # FIXME
-        credentials = gauth.get_stored_credentials(user_id=user_id)
+    def __init__(self, user_id: str, credentials: dict):
         if not credentials:
             raise RuntimeError("No Oauth2 credentials stored")
         self.service = build('gmail', 'v1', credentials=credentials)

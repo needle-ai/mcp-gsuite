@@ -1,14 +1,11 @@
 from googleapiclient.discovery import build
-from . import gauth
 import logging
 import traceback
 from datetime import datetime
 import pytz
 
 class CalendarService():
-    def __init__(self, user_id: str):
-        # FIXME
-        credentials = gauth.get_stored_credentials(user_id=user_id)
+    def __init__(self, user_id: str, credentials: dict):
         if not credentials:
             raise RuntimeError("No Oauth2 credentials stored")
         self.service = build('calendar', 'v3', credentials=credentials)  # Note: using v3 for Calendar API

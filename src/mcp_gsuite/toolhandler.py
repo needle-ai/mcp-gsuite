@@ -7,6 +7,7 @@ from mcp.types import (
 )
 
 USER_ID_ARG = "__user_id__"
+CREDENTIALS_ARG = "credentials"
 
 # FIXME
 def get_account_info() -> dict:

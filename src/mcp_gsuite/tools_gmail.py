@@ -4,7 +4,6 @@ from mcp.types import (
     TextContent,
     ImageContent,
     EmbeddedResource,
-    LoggingLevel,
 )
 from . import gmail
 import json
@@ -62,7 +61,11 @@ class QueryEmailsToolHandler(toolhandler.ToolHandler):
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
 
-        gmail_service = gmail.GmailService(user_id=user_id)
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         query = args.get('query')
         max_results = args.get('max_results', 100)
         emails = gmail_service.query_emails(query=query, max_results=max_results)
@@ -102,7 +105,12 @@ class GetEmailByIdToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         email, attachments = gmail_service.get_email_by_id_with_attachments(args["email_id"])
 
         if email is None:
@@ -153,7 +161,12 @@ class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         
         results = []
         for email_id in args["email_ids"]:
@@ -166,7 +179,7 @@ class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
             return [
                 TextContent(
                     type="text",
-                    text=f"Failed to retrieve any emails from the provided IDs"
+                    text="Failed to retrieve any emails from the provided IDs"
                 )
             ]
 
@@ -225,7 +238,12 @@ class CreateDraftToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         draft = gmail_service.create_draft(
             to=args["to"],
             subject=args["subject"],
@@ -276,7 +294,12 @@ class DeleteDraftToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         success = gmail_service.delete_draft(args["draft_id"])
 
         return [
@@ -333,7 +356,12 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         
         # First get the original message to extract necessary information
         original_message = gmail_service.get_email_by_id(args["original_message_id"])
@@ -419,7 +447,12 @@ class GetAttachmentToolHandler(toolhandler.ToolHandler):
         user_id = args.get(toolhandler.USER_ID_ARG)
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-        gmail_service = gmail.GmailService(user_id=user_id)
+
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         attachment_data = gmail_service.get_attachment(args["message_id"], args["attachment_id"])
 
         if attachment_data is None:
@@ -499,7 +532,11 @@ class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
         if not user_id:
             raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
 
-        gmail_service = gmail.GmailService(user_id=user_id)
+        credentials = args.get(toolhandler.CREDENTIALS_ARG)
+        if not credentials:
+            raise RuntimeError(f"Missing required argument: {toolhandler.CREDENTIALS_ARG}")
+
+        gmail_service = gmail.GmailService(user_id=user_id, credentials=credentials)
         results = []
 
         for attachment_info in args["attachments"]:
