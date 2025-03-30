@@ -7,7 +7,7 @@ import pytz
 
 
 class CalendarService:
-    def __init__(self, user_id: str, credentials: Credentials):
+    def __init__(self, credentials: Credentials):
         if not credentials:
             raise RuntimeError("No Oauth2 credentials provided")
 
