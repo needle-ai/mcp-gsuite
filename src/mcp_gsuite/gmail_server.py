@@ -9,7 +9,7 @@ from mcp.types import (
     ImageContent,
     EmbeddedResource,
 )
-from google.oauth2.credentials import Credentials
+from .gmail_service import GmailService
 from . import gmail_tools
 from . import toolhandler
 
@@ -32,17 +32,17 @@ def get_tool_handler(name: str) -> toolhandler.ToolHandler | None:
     return tool_handlers[name]
 
 
-def create_gmail_server(credentials: Credentials) -> Server:
+def create_gmail_server(gmail_service: GmailService) -> Server:
     server = Server("mcp-gsuite-gmail")
 
-    add_tool_handler(gmail_tools.QueryEmailsToolHandler())
-    add_tool_handler(gmail_tools.GetEmailByIdToolHandler())
-    add_tool_handler(gmail_tools.CreateDraftToolHandler())
-    add_tool_handler(gmail_tools.DeleteDraftToolHandler())
-    add_tool_handler(gmail_tools.ReplyEmailToolHandler())
-    add_tool_handler(gmail_tools.GetAttachmentToolHandler())
-    add_tool_handler(gmail_tools.BulkGetEmailsByIdsToolHandler())
-    add_tool_handler(gmail_tools.BulkSaveAttachmentsToolHandler())
+    add_tool_handler(gmail_tools.QueryEmailsToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.GetEmailByIdToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.CreateDraftToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.DeleteDraftToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.ReplyEmailToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.GetAttachmentToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.BulkGetEmailsByIdsToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.BulkSaveAttachmentsToolHandler(gmail_service))
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
@@ -65,9 +65,8 @@ def create_gmail_server(credentials: Credentials) -> Server:
             if not tool_handler:
                 raise ValueError(f"Unknown tool: {name}")
 
-            arguments["credentials"] = credentials
-
             return tool_handler.run_tool(arguments)
+
         except Exception as e:
             logging.error(traceback.format_exc())
             logging.error(f"Error during call_tool: {str(e)}")

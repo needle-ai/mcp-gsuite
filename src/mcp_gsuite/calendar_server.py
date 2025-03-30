@@ -9,7 +9,7 @@ from mcp.types import (
     ImageContent,
     EmbeddedResource,
 )
-from google.oauth2.credentials import Credentials
+from .calendar_service import CalendarService
 from . import calendar_tools
 from . import toolhandler
 
@@ -34,13 +34,13 @@ def get_tool_handler(name: str) -> toolhandler.ToolHandler | None:
     return tool_handlers[name]
 
 
-def create_calendar_server(credentials: Credentials) -> Server:
+def create_calendar_server(calendar_service: CalendarService) -> Server:
     server = Server("mcp-gsuite-calendar")
 
-    add_tool_handler(calendar_tools.ListCalendarsToolHandler())
-    add_tool_handler(calendar_tools.GetCalendarEventsToolHandler())
-    add_tool_handler(calendar_tools.CreateCalendarEventToolHandler())
-    add_tool_handler(calendar_tools.DeleteCalendarEventToolHandler())
+    add_tool_handler(calendar_tools.ListCalendarsToolHandler(calendar_service))
+    add_tool_handler(calendar_tools.GetCalendarEventsToolHandler(calendar_service))
+    add_tool_handler(calendar_tools.CreateCalendarEventToolHandler(calendar_service))
+    add_tool_handler(calendar_tools.DeleteCalendarEventToolHandler(calendar_service))
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
@@ -60,9 +60,8 @@ def create_calendar_server(credentials: Credentials) -> Server:
             if not tool_handler:
                 raise ValueError(f"Unknown tool: {name}")
 
-            arguments["credentials"] = credentials
-
             return tool_handler.run_tool(arguments)
+
         except Exception as e:
             logging.error(traceback.format_exc())
             logging.error(f"Error during call_tool: {str(e)}")

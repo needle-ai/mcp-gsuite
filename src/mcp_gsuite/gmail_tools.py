@@ -20,8 +20,9 @@ def decode_base64_data(file_data):
 
 
 class QueryEmailsToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("query_gmail_emails")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -70,17 +71,17 @@ class QueryEmailsToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
         query = args.get("query")
         max_results = args.get("max_results", 100)
-        emails = gmail_service.query_emails(query=query, max_results=max_results)
+        emails = self.gmail_service.query_emails(query=query, max_results=max_results)
 
         return [TextContent(type="text", text=json.dumps(emails, indent=2))]
 
 
 class GetEmailByIdToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("get_gmail_email")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -115,8 +116,7 @@ class GetEmailByIdToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-        email, attachments = gmail_service.get_email_by_id_with_attachments(
+        email, attachments = self.gmail_service.get_email_by_id_with_attachments(
             args["email_id"]
         )
 
@@ -134,8 +134,9 @@ class GetEmailByIdToolHandler(toolhandler.ToolHandler):
 
 
 class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("bulk_get_gmail_emails")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -171,11 +172,9 @@ class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-
         results = []
         for email_id in args["email_ids"]:
-            email, attachments = gmail_service.get_email_by_id_with_attachments(
+            email, attachments = self.gmail_service.get_email_by_id_with_attachments(
                 email_id
             )
             if email is not None:
@@ -194,8 +193,9 @@ class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
 
 
 class CreateDraftToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("create_gmail_draft")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -248,8 +248,7 @@ class CreateDraftToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-        draft = gmail_service.create_draft(
+        draft = self.gmail_service.create_draft(
             to=args["to"], subject=args["subject"], body=args["body"], cc=args.get("cc")
         )
 
@@ -260,8 +259,9 @@ class CreateDraftToolHandler(toolhandler.ToolHandler):
 
 
 class DeleteDraftToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("delete_gmail_draft")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -296,8 +296,7 @@ class DeleteDraftToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-        success = gmail_service.delete_draft(args["draft_id"])
+        success = self.gmail_service.delete_draft(args["draft_id"])
 
         return [
             TextContent(
@@ -310,8 +309,9 @@ class DeleteDraftToolHandler(toolhandler.ToolHandler):
 
 
 class ReplyEmailToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("reply_gmail_email")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -369,10 +369,10 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-
         # First get the original message to extract necessary information
-        original_message = gmail_service.get_email_by_id(args["original_message_id"])
+        original_message = self.gmail_service.get_email_by_id(
+            args["original_message_id"]
+        )
         if original_message is None:
             return [
                 TextContent(
@@ -382,7 +382,7 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
             ]
 
         # Create and send/draft the reply
-        result = gmail_service.create_reply(
+        result = self.gmail_service.create_reply(
             original_message=original_message,
             reply_body=args.get("reply_body", ""),
             send=args.get("send", False),
@@ -401,8 +401,9 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
 
 
 class GetAttachmentToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("get_gmail_attachment")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -466,8 +467,7 @@ class GetAttachmentToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
-        attachment_data = gmail_service.get_attachment(
+        attachment_data = self.gmail_service.get_attachment(
             args["message_id"], args["attachment_id"]
         )
 
@@ -504,8 +504,9 @@ class GetAttachmentToolHandler(toolhandler.ToolHandler):
 
 
 class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, gmail_service: GmailService):
         super().__init__("bulk_save_gmail_attachments")
+        self.gmail_service = gmail_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -557,12 +558,11 @@ class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        gmail_service = GmailService(user_id=user_id, credentials=credentials)
         results = []
 
         for attachment_info in args["attachments"]:
             # get attachment data from message_id and part_id
-            message, attachments = gmail_service.get_email_by_id_with_attachments(
+            message, attachments = self.gmail_service.get_email_by_id_with_attachments(
                 attachment_info["message_id"]
             )
             if message is None:
@@ -575,7 +575,7 @@ class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
                 continue
             # get attachment_id from part_id
             attachment_id = attachments[attachment_info["part_id"]]["attachmentId"]
-            attachment_data = gmail_service.get_attachment(
+            attachment_data = self.gmail_service.get_attachment(
                 attachment_info["message_id"], attachment_id
             )
             if attachment_data is None:

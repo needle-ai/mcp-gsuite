@@ -23,8 +23,9 @@ def get_calendar_id_arg_schema() -> dict[str, str]:
 
 
 class ListCalendarsToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, calendar_service: CalendarService):
         super().__init__("list_calendars")
+        self.calendar_service = calendar_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -53,15 +54,15 @@ class ListCalendarsToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        calendar_service = CalendarService(user_id=user_id, credentials=credentials)
-        calendars = calendar_service.list_calendars()
+        calendars = self.calendar_service.list_calendars()
 
         return [TextContent(type="text", text=json.dumps(calendars, indent=2))]
 
 
 class GetCalendarEventsToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, calendar_service: CalendarService):
         super().__init__("get_calendar_events")
+        self.calendar_service = calendar_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -110,8 +111,7 @@ class GetCalendarEventsToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        calendar_service = CalendarService(user_id=user_id, credentials=credentials)
-        events = calendar_service.get_events(
+        events = self.calendar_service.get_events(
             time_min=args.get("time_min"),
             time_max=args.get("time_max"),
             max_results=args.get("max_results", 250),
@@ -123,8 +123,9 @@ class GetCalendarEventsToolHandler(toolhandler.ToolHandler):
 
 
 class CreateCalendarEventToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, calendar_service: CalendarService):
         super().__init__("create_calendar_event")
+        self.calendar_service = calendar_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -194,8 +195,7 @@ class CreateCalendarEventToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        calendar_service = CalendarService(user_id=user_id, credentials=credentials)
-        event = calendar_service.create_event(
+        event = self.calendar_service.create_event(
             summary=args["summary"],
             start_time=args["start_time"],
             end_time=args["end_time"],
@@ -211,8 +211,9 @@ class CreateCalendarEventToolHandler(toolhandler.ToolHandler):
 
 
 class DeleteCalendarEventToolHandler(toolhandler.ToolHandler):
-    def __init__(self):
+    def __init__(self, calendar_service: CalendarService):
         super().__init__("delete_calendar_event")
+        self.calendar_service = calendar_service
 
     def get_tool_description(self) -> Tool:
         return Tool(
@@ -253,8 +254,7 @@ class DeleteCalendarEventToolHandler(toolhandler.ToolHandler):
                 f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
-        calendar_service = CalendarService(user_id=user_id, credentials=credentials)
-        success = calendar_service.delete_event(
+        success = self.calendar_service.delete_event(
             event_id=args["event_id"],
             send_notifications=args.get("send_notifications", True),
             calendar_id=args.get(CALENDAR_ID_ARG, "primary"),
