@@ -61,16 +61,6 @@ class QueryEmailsToolHandler(toolhandler.ToolHandler):
     def run_tool(
         self, args: dict
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
-
         query = args.get("query")
         max_results = args.get("max_results", 100)
         emails = self.gmail_service.query_emails(query=query, max_results=max_results)
@@ -105,16 +95,6 @@ class GetEmailByIdToolHandler(toolhandler.ToolHandler):
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
         if "email_id" not in args:
             raise RuntimeError("Missing required argument: email_id")
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         email, attachments = self.gmail_service.get_email_by_id_with_attachments(
             args["email_id"]
@@ -161,16 +141,6 @@ class BulkGetEmailsByIdsToolHandler(toolhandler.ToolHandler):
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
         if "email_ids" not in args:
             raise RuntimeError("Missing required argument: email_ids")
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         results = []
         for email_id in args["email_ids"]:
@@ -238,16 +208,6 @@ class CreateDraftToolHandler(toolhandler.ToolHandler):
         if not all(key in args for key in required):
             raise RuntimeError(f"Missing required arguments: {', '.join(required)}")
 
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
-
         draft = self.gmail_service.create_draft(
             to=args["to"], subject=args["subject"], body=args["body"], cc=args.get("cc")
         )
@@ -285,16 +245,6 @@ class DeleteDraftToolHandler(toolhandler.ToolHandler):
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
         if "draft_id" not in args:
             raise RuntimeError("Missing required argument: draft_id")
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         success = self.gmail_service.delete_draft(args["draft_id"])
 
@@ -357,16 +307,6 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
         if not all(key in args for key in ["original_message_id", "reply_body"]):
             raise RuntimeError(
                 "Missing required arguments: original_message_id and reply_body"
-            )
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
             )
 
         # First get the original message to extract necessary information
@@ -457,15 +397,6 @@ class GetAttachmentToolHandler(toolhandler.ToolHandler):
             raise RuntimeError("Missing required argument: filename")
         filename = args["filename"]
         mime_type = args["mime_type"]
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         attachment_data = self.gmail_service.get_attachment(
             args["message_id"], args["attachment_id"]
@@ -547,16 +478,6 @@ class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
         if "attachments" not in args:
             raise RuntimeError("Missing required argument: attachments")
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         results = []
 

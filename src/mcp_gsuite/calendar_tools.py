@@ -44,18 +44,7 @@ class ListCalendarsToolHandler(toolhandler.ToolHandler):
     def run_tool(
         self, args: dict
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
-
         calendars = self.calendar_service.list_calendars()
-
         return [TextContent(type="text", text=json.dumps(calendars, indent=2))]
 
 
@@ -101,16 +90,6 @@ class GetCalendarEventsToolHandler(toolhandler.ToolHandler):
     def run_tool(
         self, args: dict
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
-
         events = self.calendar_service.get_events(
             time_min=args.get("time_min"),
             time_max=args.get("time_max"),
@@ -185,16 +164,6 @@ class CreateCalendarEventToolHandler(toolhandler.ToolHandler):
         if not all(key in args for key in required):
             raise RuntimeError(f"Missing required arguments: {', '.join(required)}")
 
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
-
         event = self.calendar_service.create_event(
             summary=args["summary"],
             start_time=args["start_time"],
@@ -243,16 +212,6 @@ class DeleteCalendarEventToolHandler(toolhandler.ToolHandler):
     ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
         if "event_id" not in args:
             raise RuntimeError("Missing required argument: event_id")
-
-        user_id = args.get(toolhandler.USER_ID_ARG)
-        if not user_id:
-            raise RuntimeError(f"Missing required argument: {toolhandler.USER_ID_ARG}")
-
-        credentials = args.get(toolhandler.CREDENTIALS_ARG)
-        if not credentials:
-            raise RuntimeError(
-                f"Missing required argument: {toolhandler.CREDENTIALS_ARG}"
-            )
 
         success = self.calendar_service.delete_event(
             event_id=args["event_id"],
