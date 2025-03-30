@@ -9,7 +9,7 @@ from mcp.types import (
     ImageContent,
     EmbeddedResource,
 )
-from google.auth.credentials import Credentials
+from google.oauth2.credentials import Credentials
 from . import gmail_tools
 from . import toolhandler
 
