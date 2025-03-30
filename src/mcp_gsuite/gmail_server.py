@@ -9,6 +9,7 @@ from mcp.types import (
     ImageContent,
     EmbeddedResource,
 )
+from google.auth.credentials import Credentials
 from . import gmail_tools
 from . import toolhandler
 
@@ -31,7 +32,7 @@ def get_tool_handler(name: str) -> toolhandler.ToolHandler | None:
     return tool_handlers[name]
 
 
-def create_gmail_server() -> Server:
+def create_gmail_server(credentials: Credentials) -> Server:
     server = Server("mcp-gsuite-gmail")
 
     add_tool_handler(gmail_tools.QueryEmailsToolHandler())
@@ -63,6 +64,8 @@ def create_gmail_server() -> Server:
             tool_handler = get_tool_handler(name)
             if not tool_handler:
                 raise ValueError(f"Unknown tool: {name}")
+
+            arguments["credentials"] = credentials
 
             return tool_handler.run_tool(arguments)
         except Exception as e:

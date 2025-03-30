@@ -9,6 +9,7 @@ from mcp.types import (
     ImageContent,
     EmbeddedResource,
 )
+from google.auth.credentials import Credentials
 from . import calendar_tools
 from . import toolhandler
 
@@ -33,7 +34,7 @@ def get_tool_handler(name: str) -> toolhandler.ToolHandler | None:
     return tool_handlers[name]
 
 
-def create_calendar_server() -> Server:
+def create_calendar_server(credentials: Credentials) -> Server:
     server = Server("mcp-gsuite-calendar")
 
     add_tool_handler(calendar_tools.ListCalendarsToolHandler())
@@ -55,12 +56,11 @@ def create_calendar_server() -> Server:
             if not isinstance(arguments, dict):
                 raise RuntimeError("arguments must be dictionary")
 
-            if toolhandler.USER_ID_ARG not in arguments:
-                raise RuntimeError("user_id argument is missing in dictionary.")
-
             tool_handler = get_tool_handler(name)
             if not tool_handler:
                 raise ValueError(f"Unknown tool: {name}")
+
+            arguments["credentials"] = credentials
 
             return tool_handler.run_tool(arguments)
         except Exception as e:
