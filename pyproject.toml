@@ -28,4 +28,5 @@ dev = [
 ]
 
 [project.scripts]
-mcp-gsuite = "mcp_gsuite:main"
+mcp-gsuite-gmail = "mcp_gsuite.gmail_server:create_gmail_server"
+mcp-gsuite-calendar = "mcp_gsuite.calendar_server:create_calendar_server"
