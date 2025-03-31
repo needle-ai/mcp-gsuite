@@ -167,6 +167,36 @@ class GmailService:
             logging.error(traceback.format_exc())
             return []
 
+    def get_email_by_id(self, email_id: str) -> Tuple[dict, dict] | Tuple[None, dict]:
+        """
+        Fetch and parse a complete email message by its ID.
+
+        Args:
+            email_id (str): The Gmail message ID to retrieve
+
+        Returns:
+            Tuple[dict, list]: Complete parsed email message including body and list of attachment IDs
+            Tuple[None, list]: If retrieval or parsing fails, returns None for email and empty list for attachment IDs
+        """
+        try:
+            # Fetch the complete message by ID
+            message = (
+                self.service.users().messages().get(userId="me", id=email_id).execute()
+            )
+
+            # Parse the message with body included
+            parsed_email = self._parse_message(txt=message, parse_body=True)
+
+            if parsed_email is None:
+                return None, []
+
+            return parsed_email
+
+        except Exception as e:
+            logging.error(f"Error retrieving email {email_id}: {str(e)}")
+            logging.error(traceback.format_exc())
+            return None, []
+
     def get_email_by_id_with_attachments(
         self, email_id: str
     ) -> Tuple[dict, dict] | Tuple[None, dict]:
