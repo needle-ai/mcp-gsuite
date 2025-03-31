@@ -310,7 +310,7 @@ class ReplyEmailToolHandler(toolhandler.ToolHandler):
             )
 
         # First get the original message to extract necessary information
-        original_message = self.gmail_service.get_email_by_id(
+        original_message, _ = self.gmail_service.get_email_by_id_with_attachments(
             args["original_message_id"]
         )
         if original_message is None:
