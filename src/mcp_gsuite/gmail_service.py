@@ -425,3 +425,45 @@ class GmailService:
             )
             logging.error(traceback.format_exc())
             return None
+
+    def send_email(
+        self, to: str, subject: str, body: str, cc: list[str] | None = None
+    ) -> dict | None:
+        """
+        Send an email message.
+
+        Args:
+            to (str): Email address of the recipient
+            subject (str): Subject line of the email
+            body (str): Body content of the email
+            cc (list[str], optional): List of email addresses to CC
+
+        Returns:
+            dict: Sent message data including the message ID if successful
+            None: If sending fails
+        """
+        try:
+            # Create message body
+            message = MIMEText(body)
+            message["to"] = to
+            message["subject"] = subject
+            if cc:
+                message["cc"] = ",".join(cc)
+
+            # Encode the message
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
+
+            # Send the message
+            sent_message = (
+                self.service.users()
+                .messages()
+                .send(userId="me", body={"raw": raw_message})
+                .execute()
+            )
+
+            return sent_message
+
+        except Exception as e:
+            logging.error(f"Error sending email: {str(e)}")
+            logging.error(traceback.format_exc())
+            return None

@@ -529,3 +529,58 @@ class BulkSaveAttachmentsToolHandler(toolhandler.ToolHandler):
                 continue
 
         return results
+
+
+class SendEmailToolHandler(toolhandler.ToolHandler):
+    def __init__(self, gmail_service: GmailService):
+        super().__init__("send_gmail_email")
+        self.gmail_service = gmail_service
+
+    def get_tool_description(self) -> Tool:
+        return Tool(
+            name=self.name,
+            description="Sends an email message using Gmail.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "__user_id__": self.get_user_id_arg_schema(),
+                    "to": {
+                        "type": "string",
+                        "description": "Email address of the recipient",
+                    },
+                    "subject": {
+                        "type": "string",
+                        "description": "Subject line of the email",
+                    },
+                    "body": {
+                        "type": "string",
+                        "description": "Body content of the email",
+                    },
+                    "cc": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Optional list of email addresses to CC",
+                    },
+                },
+                "required": ["to", "subject", "body", toolhandler.USER_ID_ARG],
+            },
+        )
+
+    def run_tool(
+        self, args: dict
+    ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
+        required = ["to", "subject", "body"]
+        if not all(key in args for key in required):
+            raise RuntimeError(f"Missing required arguments: {', '.join(required)}")
+
+        sent_message = self.gmail_service.send_email(
+            to=args["to"],
+            subject=args["subject"],
+            body=args["body"],
+            cc=args.get("cc"),
+        )
+
+        if sent_message is None:
+            return [TextContent(type="text", text="Failed to send email")]
+
+        return [TextContent(type="text", text=json.dumps(sent_message, indent=2))]

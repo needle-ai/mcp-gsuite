@@ -43,6 +43,7 @@ def create_gmail_server(gmail_service: GmailService) -> Server:
     add_tool_handler(gmail_tools.GetAttachmentToolHandler(gmail_service))
     add_tool_handler(gmail_tools.BulkGetEmailsByIdsToolHandler(gmail_service))
     add_tool_handler(gmail_tools.BulkSaveAttachmentsToolHandler(gmail_service))
+    add_tool_handler(gmail_tools.SendEmailToolHandler(gmail_service))
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
