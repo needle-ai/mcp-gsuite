@@ -504,16 +504,8 @@ class GmailService:
             )
 
             drafts = result.get("drafts", [])
-            parsed_drafts = []
 
-            # Fetch full message details for each draft
-            for draft in drafts:
-                message_id = draft["message"]["id"]
-                message = self.get_email_by_id(message_id)
-                if message:
-                    parsed_drafts.append(message)
-
-            return parsed_drafts
+            return drafts
 
         except Exception as e:
             logging.error(f"Error listing drafts: {str(e)}")
