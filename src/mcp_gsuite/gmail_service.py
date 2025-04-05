@@ -467,3 +467,55 @@ class GmailService:
             logging.error(f"Error sending email: {str(e)}")
             logging.error(traceback.format_exc())
             return None
+
+    def list_drafts(
+        self,
+        max_results: int = 100,
+        query: str | None = None,
+        include_spam_trash: bool = False,
+    ) -> list[dict] | None:
+        """
+        List draft messages in the user's mailbox.
+
+        Args:
+            max_results (int): Maximum number of drafts to return (1-500, default: 100)
+            query (str, optional): Only return draft messages matching the specified query
+            include_spam_trash (bool): Include drafts from SPAM and TRASH in the results
+
+        Returns:
+            list[dict]: List of draft messages if successful
+            None: If listing fails
+        """
+        try:
+            # Ensure max_results is within API limits
+            max_results = min(max(1, max_results), 500)
+
+            # Get the list of drafts
+            result = (
+                self.service.users()
+                .drafts()
+                .list(
+                    userId="me",
+                    maxResults=max_results,
+                    q=query if query else "",
+                    includeSpamTrash=include_spam_trash,
+                )
+                .execute()
+            )
+
+            drafts = result.get("drafts", [])
+            parsed_drafts = []
+
+            # Fetch full message details for each draft
+            for draft in drafts:
+                message_id = draft["message"]["id"]
+                message = self.get_email_by_id(message_id)
+                if message:
+                    parsed_drafts.append(message)
+
+            return parsed_drafts
+
+        except Exception as e:
+            logging.error(f"Error listing drafts: {str(e)}")
+            logging.error(traceback.format_exc())
+            return None

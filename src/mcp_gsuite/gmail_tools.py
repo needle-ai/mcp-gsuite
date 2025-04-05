@@ -584,3 +584,56 @@ class SendEmailToolHandler(toolhandler.ToolHandler):
             return [TextContent(type="text", text="Failed to send email")]
 
         return [TextContent(type="text", text=json.dumps(sent_message, indent=2))]
+
+
+class ListDraftsToolHandler(toolhandler.ToolHandler):
+    def __init__(self, gmail_service: GmailService):
+        super().__init__("list_gmail_drafts")
+        self.gmail_service = gmail_service
+
+    def get_tool_description(self) -> Tool:
+        return Tool(
+            name=self.name,
+            description="Lists draft messages in the user's Gmail mailbox.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "__user_id__": self.get_user_id_arg_schema(),
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of drafts to return (1-500)",
+                        "minimum": 1,
+                        "maximum": 500,
+                        "default": 100,
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": """Optional Gmail search query to filter drafts. Examples:
+                            - 'is:unread' for unread drafts
+                            - 'from:example@gmail.com' for drafts from a specific sender
+                            - 'newer_than:2d' for drafts from last 2 days
+                            - 'has:attachment' for drafts with attachments""",
+                    },
+                    "include_spam_trash": {
+                        "type": "boolean",
+                        "description": "Include drafts from SPAM and TRASH in the results",
+                        "default": False,
+                    },
+                },
+                "required": [toolhandler.USER_ID_ARG],
+            },
+        )
+
+    def run_tool(
+        self, args: dict
+    ) -> Sequence[TextContent | ImageContent | EmbeddedResource]:
+        drafts = self.gmail_service.list_drafts(
+            max_results=args.get("max_results", 100),
+            query=args.get("query"),
+            include_spam_trash=args.get("include_spam_trash", False),
+        )
+
+        if drafts is None:
+            return [TextContent(type="text", text="Failed to list drafts")]
+
+        return [TextContent(type="text", text=json.dumps(drafts, indent=2))]
