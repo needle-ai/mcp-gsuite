@@ -18,24 +18,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("mcp-gsuite-calendar")
 
 
-tool_handlers = {}
-
-
-def add_tool_handler(tool_class: toolhandler.ToolHandler):
-    global tool_handlers
-
-    tool_handlers[tool_class.name] = tool_class
-
-
-def get_tool_handler(name: str) -> toolhandler.ToolHandler | None:
-    if name not in tool_handlers:
-        return None
-
-    return tool_handlers[name]
-
-
 def create_calendar_server(calendar_service: CalendarService) -> Server:
     server = Server("mcp-gsuite-calendar")
+
+    tool_handlers: dict[str, toolhandler.ToolHandler] = {}
+
+    def add_tool_handler(tool_class: toolhandler.ToolHandler):
+        tool_handlers[tool_class.name] = tool_class
 
     add_tool_handler(calendar_tools.ListCalendarsToolHandler(calendar_service))
     add_tool_handler(calendar_tools.GetCalendarEventsToolHandler(calendar_service))
@@ -56,7 +45,7 @@ def create_calendar_server(calendar_service: CalendarService) -> Server:
             if not isinstance(arguments, dict):
                 raise RuntimeError("arguments must be dictionary")
 
-            tool_handler = get_tool_handler(name)
+            tool_handler = tool_handlers.get(name)
             if not tool_handler:
                 raise ValueError(f"Unknown tool: {name}")
 
