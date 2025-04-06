@@ -121,21 +121,21 @@ class GmailService:
             logging.error(f"Error extracting body: {str(e)}")
             return None
 
-    def query_emails(self, query=None, max_results=100):
+    def query_emails(self, query=None, max_results=20):
         """
         Query emails from Gmail based on a search query.
 
         Args:
             query (str, optional): Gmail search query (e.g., 'is:unread', 'from:example@gmail.com')
                                 If None, returns all emails
-            max_results (int): Maximum number of emails to retrieve (1-500, default: 100)
+            max_results (int): Maximum number of emails to retrieve (1-20, default: 20)
 
         Returns:
             list: List of parsed email messages, newest first
         """
         try:
             # Ensure max_results is within API limits
-            max_results = min(max(1, max_results), 500)
+            max_results = min(max(1, max_results), 20)
 
             # Get the list of messages
             result = (
@@ -470,7 +470,7 @@ class GmailService:
 
     def list_drafts(
         self,
-        max_results: int = 100,
+        max_results: int = 20,
         query: str | None = None,
         include_spam_trash: bool = False,
     ) -> list[dict] | None:
@@ -478,7 +478,7 @@ class GmailService:
         List draft messages in the user's mailbox.
 
         Args:
-            max_results (int): Maximum number of drafts to return (1-500, default: 100)
+            max_results (int): Maximum number of drafts to return (1-20, default: 20)
             query (str, optional): Only return draft messages matching the specified query
             include_spam_trash (bool): Include drafts from SPAM and TRASH in the results
 
@@ -488,7 +488,7 @@ class GmailService:
         """
         try:
             # Ensure max_results is within API limits
-            max_results = min(max(1, max_results), 500)
+            max_results = min(max(1, max_results), 20)
 
             # Get the list of drafts
             result = (
@@ -505,7 +505,16 @@ class GmailService:
 
             drafts = result.get("drafts", [])
 
-            return drafts
+            draft_messages = []
+            for draft in drafts:
+                message_id = draft.get("message", {}).get("id")
+                if not message_id:
+                    continue
+
+                message = self.get_email_by_id(message_id)
+                draft_messages.append({"id": draft.get("id"), "message": message})
+
+            return draft_messages
 
         except Exception as e:
             logging.error(f"Error listing drafts: {str(e)}")
