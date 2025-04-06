@@ -18,14 +18,7 @@ dependencies = [
 name = "Markus Pfundstein"
 email = "markus@life-electronic.nl"
 
-[build-system]
-requires = [ "hatchling",]
-build-backend = "hatchling.build"
-
 [dependency-groups]
 dev = [
     "pyright>=1.1.389",
 ]
-
-[project.scripts]
-mcp-gsuite = "mcp_gsuite:main"
